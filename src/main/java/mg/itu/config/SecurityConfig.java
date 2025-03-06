@@ -22,7 +22,6 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
     
-    // Move this to a separate configuration class to break the cycle
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
