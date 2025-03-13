@@ -29,8 +29,8 @@ public class DiscountController {
 
     @GetMapping("/form")
     public String showForm(@RequestParam(required = false) Integer id, Model model) {
-        PercentageDiscount discount = id != null ? discountRepository.findById(id).orElse(new PercentageDiscount()) 
-                                               : new PercentageDiscount();
+        PercentageDiscount discount = id != null ? discountRepository.findById(id).orElse(new PercentageDiscount()) : new PercentageDiscount();
+        
         model.addAttribute("discount", discount);
         model.addAttribute("categories", categorieAgeRepository.findAll());
         return "discount/form";
@@ -42,7 +42,7 @@ public class DiscountController {
                       Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", categorieAgeRepository.findAll());
-            return "discount/form"; // Return to form with errors
+            return "discount/form"; 
         }
         discountRepository.save(discount);
         return "redirect:/discounts";
