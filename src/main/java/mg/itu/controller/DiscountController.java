@@ -39,7 +39,8 @@ public class DiscountController {
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("discount") PercentageDiscount discount, 
                       BindingResult bindingResult, 
-                      Model model) {
+                      Model model) 
+    {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", categorieAgeRepository.findAll());
             return "discount/form"; 
