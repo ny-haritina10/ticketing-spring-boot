@@ -8,16 +8,26 @@ public class AuthController {
 
     @GetMapping("/")
     public String index() {
-        return "auth/login";
+        return "auth/login-admin"; 
     }
 
     @GetMapping("/login")
     public String login() {
-        return "auth/login";
+        return "auth/login-admin"; 
     }
     
-    @GetMapping("/dashboard")
+    @GetMapping("/client-login")
+    public String clientLogin() {
+        return "auth/login-client"; 
+    }
+    
+    @GetMapping("/client/dashboard")
     public String dashboard() {
-        return "home/dashboard";
+        return "home/client-dashboard"; 
+    }
+    
+    @GetMapping("/admin/dashboard")
+    public String adminDashboard() {
+        return "home/admin-dashboard"; 
     }
 }
