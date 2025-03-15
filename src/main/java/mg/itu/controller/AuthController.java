@@ -8,17 +8,17 @@ public class AuthController {
 
     @GetMapping("/")
     public String index() {
-        return "auth/login-admin"; 
+        return "redirect:/admin-login";
     }
 
-    @GetMapping("/login")
+    @GetMapping("/admin-login")
     public String login() {
-        return "auth/login-admin"; 
+        return "auth/login-admin";
     }
-    
+
     @GetMapping("/client-login")
     public String clientLogin() {
-        return "auth/login-client"; 
+        return "auth/login-client";
     }
     
     @GetMapping("/client/dashboard")
