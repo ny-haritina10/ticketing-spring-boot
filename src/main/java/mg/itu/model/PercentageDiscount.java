@@ -2,9 +2,17 @@ package mg.itu.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "percentage_discount")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PercentageDiscount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,19 +32,4 @@ public class PercentageDiscount {
     @ManyToOne
     @JoinColumn(name = "id_categorie_age", insertable = false, updatable = false)
     private CategorieAge categorieAge;
-
-    // Constructors
-    public PercentageDiscount() {}
-
-    // Getters and Setters
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public Integer getCategorieAgeId() { return categorieAgeId; }
-    public void setCategorieAgeId(Integer categorieAgeId) { this.categorieAgeId = categorieAgeId; }
-    public Integer getAgeMax() { return ageMax; }
-    public void setAgeMax(Integer ageMax) { this.ageMax = ageMax; }
-    public Double getPercentageDiscount() { return percentageDiscount; }
-    public void setPercentageDiscount(Double percentageDiscount) { this.percentageDiscount = percentageDiscount; }
-    public CategorieAge getCategorieAge() { return categorieAge; }
-    public void setCategorieAge(CategorieAge categorieAge) { this.categorieAge = categorieAge; }
 }
