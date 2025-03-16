@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpSession;
 import mg.itu.model.Admin;
 import mg.itu.repository.AdminRepository;
 
@@ -24,9 +25,18 @@ public class AuthService {
             return false;
         }
 
-        System.out.println("Raw password entered: " + password);
-        System.out.println("Stored password from DB: " + admin.get().getPassword());
-
         return passwordEncoder.matches(password, admin.get().getPassword());
+    }
+
+    public boolean isAuthenticatedAsAdmin(HttpSession session) {
+        if (session.getAttribute("role") != null || session.getAttribute("is_auth") != null) { 
+            String role = (String) session.getAttribute("role");
+            boolean isAuthenticated = (boolean) session.getAttribute("is_auth");
+
+            if (isAuthenticated && role.equals("ADMIN"))
+            { return true; }
+        }
+
+        return false;
     }
 }

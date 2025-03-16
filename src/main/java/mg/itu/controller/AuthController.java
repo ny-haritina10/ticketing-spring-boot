@@ -1,12 +1,14 @@
 package mg.itu.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.ui.Model;
+
+import jakarta.servlet.http.HttpSession;
 import mg.itu.service.AuthService;
 
 @Controller
@@ -31,9 +33,14 @@ public class AuthController {
     }
 
     @PostMapping("/admin/auth")
-    public String adminAuth(@RequestParam String username, @RequestParam String password, RedirectAttributes redirectAttributes) {
+    public String adminAuth(@RequestParam String username, @RequestParam String password, RedirectAttributes redirectAttributes, HttpSession session) {
         boolean auth = authService.adminAuth(username, password);
+
         if (auth) {
+            session.setAttribute("role", "ADMIN");
+            session.setAttribute("is_auth", true);
+            session.setAttribute("username", username);
+
             return "home/admin-dashboard";
         } else {
             redirectAttributes.addFlashAttribute("error", "Invalid credentials"); 
@@ -42,12 +49,17 @@ public class AuthController {
     }
 
     @GetMapping("/admin/dashboard")
-    public String adminDashboard() {
-        return "home/admin-dashboard";
+    public String adminDashboard(HttpSession session) {
+        if (authService.isAuthenticatedAsAdmin(session)) 
+        { return "home/admin-dashboard"; }
+
+        else 
+        { return "redirect:/"; }
     }
 
     @GetMapping("/admin/logout")
-    public String adminLogout() {
+    public String adminLogout(HttpSession session) {
+        session.invalidate();
         return "auth/login-admin";
     }
 }
