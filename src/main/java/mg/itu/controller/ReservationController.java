@@ -1,8 +1,8 @@
 package mg.itu.controller;
 
+import mg.itu.model.Client;
 import mg.itu.model.Reservation;
 import mg.itu.model.ReservationDetail;
-import mg.itu.model.Client;
 import mg.itu.repository.ClientRepository;
 import mg.itu.repository.FlightRepository;
 import mg.itu.service.FileStorageService;
@@ -59,20 +59,16 @@ public class ReservationController {
     @PostMapping("/create")
     public String createReservation(@Valid Reservation reservation, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            model.addAttribute("clients", clientRepository.findAll());
             model.addAttribute("flights", flightRepository.findAll());
             return "reservation/create";
         }
         
-        // Validate the number of tickets
         if (reservation.getChildTickets() + reservation.getAdultTickets() != reservation.getTotalTickets()) {
             result.rejectValue("totalTickets", "error.reservation", "Total tickets must equal the sum of child and adult tickets");
-            model.addAttribute("clients", clientRepository.findAll());
             model.addAttribute("flights", flightRepository.findAll());
             return "reservation/create";
         }
         
-        // Save the reservation
         Reservation savedReservation = reservationService.saveReservation(reservation);
         
         redirectAttributes.addFlashAttribute("reservationId", savedReservation.getId());
@@ -123,13 +119,11 @@ public class ReservationController {
             detail.setPromotional(promotionals.get(i));
             detail.setCancelled(false);
             
-            // Handle passport image upload
             MultipartFile passportImage = passportImages.get(i);
             if (!passportImage.isEmpty()) {
                 String fileName = fileStorageService.storeFile(passportImage);
                 detail.setPassportImage(fileName);
             } else {
-                // Handle error - passport image is required
                 redirectAttributes.addFlashAttribute("error", "Passport image is required for all passengers");
                 redirectAttributes.addFlashAttribute("reservationId", reservationId);
                 redirectAttributes.addFlashAttribute("totalTickets", reservation.getTotalTickets());
@@ -148,5 +142,18 @@ public class ReservationController {
     @GetMapping("/success")
     public String showSuccessPage() {
         return "reservation/success";
+    }
+
+    @GetMapping("/list")
+    public String showReservationsList(Model model, HttpSession session) {
+        Client client = (Client) session.getAttribute("client");
+        
+        if (client == null) {
+            return "redirect:/client-login";
+        }
+
+        List<Reservation> reservations = reservationService.findReservationsByClient(client);
+        model.addAttribute("reservations", reservations);
+        return "reservation/reservations-list";
     }
 }

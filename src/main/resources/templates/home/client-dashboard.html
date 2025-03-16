@@ -25,11 +25,14 @@
     </nav>
     <div class="container mt-4">
         <div class="alert alert-success">
-            <i class="bi bi-check-circle-fill"></i> Welcome to front-office dashboard !
+            <i class="bi bi-check-circle-fill"></i> Welcome to front-office dashboard!
         </div>
         <div class="mt-3">
-            <a th:href="@{/reservations/create}" class="btn btn-primary">
+            <a th:href="@{/reservations/create}" class="btn btn-primary me-2">
                 <i class="bi bi-plus-circle"></i> Create New Reservation
+            </a>
+            <a th:href="@{/reservations/list}" class="btn btn-info">
+                <i class="bi bi-list-ul"></i> My Reservations List
             </a>
         </div>
     </div>
