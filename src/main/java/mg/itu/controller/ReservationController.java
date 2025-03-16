@@ -2,6 +2,7 @@ package mg.itu.controller;
 
 import mg.itu.model.Reservation;
 import mg.itu.model.ReservationDetail;
+import mg.itu.model.Client;
 import mg.itu.repository.ClientRepository;
 import mg.itu.repository.FlightRepository;
 import mg.itu.service.FileStorageService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,9 +41,17 @@ public class ReservationController {
     private FileStorageService fileStorageService;
     
     @GetMapping("/create")
-    public String showCreateForm(Model model) {
-        model.addAttribute("reservation", new Reservation());
-        model.addAttribute("clients", clientRepository.findAll());
+    public String showCreateForm(Model model, HttpSession session) {
+        Client client = (Client) session.getAttribute("client");
+        
+        if (client == null) {
+            return "redirect:/client-login";
+        }
+
+        Reservation reservation = new Reservation();
+        reservation.setClient(client);
+
+        model.addAttribute("reservation", reservation);
         model.addAttribute("flights", flightRepository.findAll());
         return "reservation/create";
     }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+import mg.itu.model.Client;
 import mg.itu.service.AuthService;
 
 @Controller
@@ -65,11 +66,16 @@ public class AuthController {
     @PostMapping("/client/auth")
     public String clientAuth(@RequestParam String username, @RequestParam String password, RedirectAttributes redirectAttributes, HttpSession session) {
         boolean auth = authService.clientAuth(username, password);
+        Client client = authService.getClientByUsername(username);
 
         if (auth) {
+            // base session attributes
             session.setAttribute("role", "CLIENT");
             session.setAttribute("is_auth", true);
             session.setAttribute("username", username);
+
+            // clients details
+            session.setAttribute("client", client);
 
             return "home/client-dashboard";
         } else {

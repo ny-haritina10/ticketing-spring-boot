@@ -66,4 +66,7 @@ public class AuthService {
 
         return false;
     }
+
+    public Client getClientByUsername(String username) 
+    { return clientRepository.findByEmail(username).get(); }
 }

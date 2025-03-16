@@ -21,20 +21,8 @@
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="client" class="form-label">Client</label>
-                            <select id="client" th:field="*{client}" class="form-select" required>
-                                <option value="">-- Select Client --</option>
-                                <option th:each="client : ${clients}" 
-                                        th:value="${client.id}" 
-                                        th:text="${'ID:' + client.id + ' - ' + client.name}">
-                                </option>
-                            </select>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('client')}" th:errors="*{client}">
-                                Please select a client.
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <!-- Removed the client dropdown -->
+                        <div class="col-md-12">
                             <label for="flight" class="form-label">Flight</label>
                             <select id="flight" th:field="*{flight}" class="form-select" required>
                                 <option value="">-- Select Flight --</option>
