@@ -45,4 +45,9 @@ public class AuthController {
     public String adminDashboard() {
         return "home/admin-dashboard";
     }
+
+    @GetMapping("/admin/logout")
+    public String adminLogout() {
+        return "auth/login-admin";
+    }
 }
