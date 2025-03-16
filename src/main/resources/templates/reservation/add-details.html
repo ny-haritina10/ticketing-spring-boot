@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Reservation Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-5">
+        <h1 class="mb-4">Add Passenger Details</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <span th:text="${error}"></span>
+        </div>
+        
+        <form th:action="@{/reservations/details}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <input type="hidden" name="reservationId" th:value="${reservationId}">
+            
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Passenger Information</h5>
+                    <span class="badge bg-primary" th:text="${'Total Passengers: ' + details.size()}"></span>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="passengersAccordion">
+                        <div th:each="detail, status : ${details}" class="accordion-item">
+                            <h2 class="accordion-header" th:id="'heading' + ${status.index}">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                        th:data-bs-target="'#collapse' + ${status.index}" 
+                                        aria-expanded="true" th:aria-controls="'collapse' + ${status.index}">
+                                    <span th:text="${'Passenger ' + (status.index + 1)}"></span>
+                                </button>
+                            </h2>
+                            <div th:id="'collapse' + ${status.index}" class="accordion-collapse collapse show" 
+                                 th:aria-labelledby="'heading' + ${status.index}" data-bs-parent="#passengersAccordion">
+                                <div class="accordion-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label th:for="'passengerName' + ${status.index}" class="form-label">Passenger Name</label>
+                                            <input type="text" th:id="'passengerName' + ${status.index}" 
+                                                   name="passengerName" class="form-control" required>
+                                            <div class="invalid-feedback">
+                                                Please enter the passenger name.
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label th:for="'passengerBirthDate' + ${status.index}" class="form-label">Date of Birth</label>
+                                            <input type="date" th:id="'passengerBirthDate' + ${status.index}" 
+                                                   name="passengerBirthDate" class="form-control" required>
+                                            <div class="invalid-feedback">
+                                                Please enter the passenger's date of birth.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label th:for="'seatCategory' + ${status.index}" class="form-label">Seat Category</label>
+                                            <select th:id="'seatCategory' + ${status.index}" name="seatCategory" class="form-select" required>
+                                                <option value="">-- Select Category --</option>
+                                                <option value="ECONOMY">Economy</option>
+                                                <option value="BUSINESS">Business</option>
+                                                <option value="FIRST_CLASS">First Class</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select a seat category.
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label th:for="'price' + ${status.index}" class="form-label">Price</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number" th:id="'price' + ${status.index}" 
+                                                       name="price" class="form-control" step="0.01" min="0" required>
+                                                <div class="invalid-feedback">
+                                                    Please enter a valid price.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label th:for="'passportImage' + ${status.index}" class="form-label">Passport Image</label>
+                                            <input type="file" th:id="'passportImage' + ${status.index}" 
+                                                   name="passportImage" class="form-control" accept="image/*" required>
+                                            <div class="invalid-feedback">
+                                                Please upload a passport image.
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" th:id="'promotional' + ${status.index}" 
+                                                       name="promotional" value="true">
+                                                <label class="form-check-label" th:for="'promotional' + ${status.index}">
+                                                    Promotional Ticket
+                                                </label>
+                                            </div>
+                                            <input type="hidden" name="promotional" value="false">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a th:href="@{/reservations/create}" class="btn btn-secondary me-md-2">Back</a>
+                <button type="submit" class="btn btn-success">Complete Reservation</button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+</body>
+</html>

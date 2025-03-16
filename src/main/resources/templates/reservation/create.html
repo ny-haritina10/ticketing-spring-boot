@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Reservation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-5">
+        <h1 class="mb-4">Create New Reservation</h1>
+        
+        <div class="alert alert-danger" th:if="${#fields.hasErrors('reservation.*')}">
+            <p>Please correct the errors below and try again.</p>
+        </div>
+        
+        <form th:action="@{/reservations/create}" th:object="${reservation}" method="post" class="needs-validation" novalidate>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Reservation Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="client" class="form-label">Client</label>
+                            <select id="client" th:field="*{client}" class="form-select" required>
+                                <option value="">-- Select Client --</option>
+                                <option th:each="client : ${clients}" 
+                                        th:value="${client.id}" 
+                                        th:text="${'ID:' + client.id + ' - ' + client.name}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('client')}" th:errors="*{client}">
+                                Please select a client.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="flight" class="form-label">Flight</label>
+                            <select id="flight" th:field="*{flight}" class="form-select" required>
+                                <option value="">-- Select Flight --</option>
+                                <option th:each="flight : ${flights}" 
+                                        th:value="${flight.id}" 
+                                        th:text="${'VOL-' + flight.flightNumber}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('flight')}" th:errors="*{flight}">
+                                Please select a flight.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="totalTickets" class="form-label">Total Tickets</label>
+                            <input type="number" id="totalTickets" th:field="*{totalTickets}" class="form-control" min="1" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('totalTickets')}" th:errors="*{totalTickets}">
+                                Please enter the total number of tickets.
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="adultTickets" class="form-label">Adult Tickets</label>
+                            <input type="number" id="adultTickets" th:field="*{adultTickets}" class="form-control" min="0" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('adultTickets')}" th:errors="*{adultTickets}">
+                                Please enter the number of adult tickets.
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="childTickets" class="form-label">Child Tickets</label>
+                            <input type="number" id="childTickets" th:field="*{childTickets}" class="form-control" min="0" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('childTickets')}" th:errors="*{childTickets}">
+                                Please enter the number of child tickets.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">Proceed to Add Passenger Details</button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    // Check if total tickets equals the sum of adult and child tickets
+                    const totalTickets = parseInt(document.getElementById('totalTickets').value)
+                    const adultTickets = parseInt(document.getElementById('adultTickets').value)
+                    const childTickets = parseInt(document.getElementById('childTickets').value)
+                    
+                    if (totalTickets !== (adultTickets + childTickets)) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        alert('Total tickets must equal the sum of adult and child tickets')
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+</body>
+</html>
