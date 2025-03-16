@@ -1,7 +1,6 @@
 package mg.itu.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,5 +60,36 @@ public class AuthController {
     public String adminLogout(HttpSession session) {
         session.invalidate();
         return "auth/login-admin";
+    }
+
+    @PostMapping("/client/auth")
+    public String clientAuth(@RequestParam String username, @RequestParam String password, RedirectAttributes redirectAttributes, HttpSession session) {
+        boolean auth = authService.clientAuth(username, password);
+
+        if (auth) {
+            session.setAttribute("role", "CLIENT");
+            session.setAttribute("is_auth", true);
+            session.setAttribute("username", username);
+
+            return "home/client-dashboard";
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Invalid credentials"); 
+            return "redirect:/client-login";  
+        }
+    }
+
+    @GetMapping("/client/dashboard")
+    public String clientDashboard(HttpSession session) {
+        if (authService.isAuthenticatedAsClient(session)) 
+        { return "home/client-dashboard"; }
+
+        else 
+        { return "redirect:/client-login"; }
+    }
+
+    @GetMapping("/client/logout")
+    public String clientLogout(HttpSession session) {
+        session.invalidate();
+        return "auth/login-client";
     }
 }

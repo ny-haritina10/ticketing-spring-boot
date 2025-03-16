@@ -15,7 +15,7 @@
                 <span class="navbar-text me-3">
                     <i class="bi bi-person-circle"></i> Welcome, <span sec:authentication="name"></span>
                 </span>
-                <form th:action="@{/logout}" method="post">
+                <form th:action="@{/client/logout}" method="get">
                     <button class="btn btn-outline-light" type="submit">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </button>

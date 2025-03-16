@@ -20,13 +20,10 @@
             <div class="login-header">
                 <h2><i class="bi bi-shield-lock"></i> Client Login</h2>
             </div>
-            <div th:if="${param.error}" class="alert alert-danger">
+            <div th:if="${error}" class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill"></i> Invalid email or password.
             </div>
-            <div th:if="${param.logout}" class="alert alert-success">
-                <i class="bi bi-check-circle-fill"></i> You have been logged out.
-            </div>
-            <form class="login-form" th:action="@{/client-login-process}" method="post">
+            <form class="login-form" th:action="@{/client/auth}" method="post">
                 <div class="form-group">
                     <label for="username" class="form-label">Email</label>
                     <div class="input-group">
