@@ -3,7 +3,6 @@ package mg.itu.controller;
 import mg.itu.model.Client;
 import mg.itu.model.Reservation;
 import mg.itu.model.ReservationDetail;
-import mg.itu.repository.ClientRepository;
 import mg.itu.repository.FlightRepository;
 import mg.itu.service.FileStorageService;
 import mg.itu.service.ReservationService;
@@ -30,9 +29,6 @@ public class ReservationController {
     
     @Autowired
     private ReservationService reservationService;
-    
-    @Autowired
-    private ClientRepository clientRepository;
     
     @Autowired
     private FlightRepository flightRepository;
