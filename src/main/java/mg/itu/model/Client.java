@@ -1,5 +1,7 @@
 package mg.itu.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +14,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Client {
+public class Client implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

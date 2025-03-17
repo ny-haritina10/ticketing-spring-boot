@@ -5,6 +5,7 @@ import mg.itu.model.Reservation;
 import mg.itu.model.ReservationDetail;
 import mg.itu.repository.FlightRepository;
 import mg.itu.service.FileStorageService;
+import mg.itu.service.PriceCalculationService;
 import mg.itu.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,8 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.time.LocalDate;
 import java.math.BigDecimal;
@@ -35,6 +38,9 @@ public class ReservationController {
     
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private PriceCalculationService priceService;
     
     @GetMapping("/create")
     public String showCreateForm(Model model, HttpSession session) {
@@ -43,6 +49,8 @@ public class ReservationController {
         if (client == null) {
             return "redirect:/client-login";
         }
+
+        System.out.println("id client: " + client.getId());
 
         Reservation reservation = new Reservation();
         reservation.setClient(client);
@@ -53,7 +61,15 @@ public class ReservationController {
     }
     
     @PostMapping("/create")
-    public String createReservation(@Valid Reservation reservation, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    public String createReservation(@Valid Reservation reservation, BindingResult result, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+        Client client = (Client) session.getAttribute("client");
+        if (client == null) {
+            return "redirect:/client-login";
+        }
+
+        // set client
+        reservation.setClient(client);
+        
         if (result.hasErrors()) {
             model.addAttribute("flights", flightRepository.findAll());
             return "reservation/create";
@@ -69,12 +85,16 @@ public class ReservationController {
         
         redirectAttributes.addFlashAttribute("reservationId", savedReservation.getId());
         redirectAttributes.addFlashAttribute("totalTickets", savedReservation.getTotalTickets());
+        redirectAttributes.addFlashAttribute("flightId", savedReservation.getFlight().getId());
         
         return "redirect:/reservations/details";
     }
     
     @GetMapping("/details")
-    public String showDetailsForm(Model model, @ModelAttribute("reservationId") Integer reservationId, @ModelAttribute("totalTickets") Integer totalTickets) {
+    public String showDetailsForm(Model model, 
+                                 @ModelAttribute("reservationId") Integer reservationId, 
+                                 @ModelAttribute("totalTickets") Integer totalTickets,
+                                 @ModelAttribute("flightId") Integer flightId) {
         if (reservationId == null) {
             return "redirect:/reservations/create";
         }
@@ -85,6 +105,7 @@ public class ReservationController {
         }
         
         model.addAttribute("reservationId", reservationId);
+        model.addAttribute("flightId", flightId);
         model.addAttribute("details", details);
         
         return "reservation/add-details";
@@ -92,6 +113,7 @@ public class ReservationController {
     
     @PostMapping("/details")
     public String saveDetails(@RequestParam("reservationId") Integer reservationId,
+                             @RequestParam("flightId") Integer flightId,
                              @RequestParam("passengerName") List<String> passengerNames,
                              @RequestParam("seatCategory") List<String> seatCategories,
                              @RequestParam("passengerBirthDate") List<String> birthDates,
@@ -110,10 +132,28 @@ public class ReservationController {
             ReservationDetail detail = new ReservationDetail();
             detail.setPassengerName(passengerNames.get(i));
             detail.setSeatCategory(seatCategories.get(i));
-            detail.setPassengerBirthDate(LocalDate.parse(birthDates.get(i)));
-            detail.setPrice(new BigDecimal(prices.get(i)));
-            detail.setPromotional(promotionals.get(i));
+            
+            LocalDate birthDate = LocalDate.parse(birthDates.get(i));
+            detail.setPassengerBirthDate(birthDate);
+            
+            boolean isPromotional = promotionals.get(i);
+            detail.setPromotional(isPromotional);
+            
+            // Calculate price using the PriceCalculationService
+            BigDecimal calculatedPrice = priceService.calculateSeatPrice(
+                flightId, 
+                seatCategories.get(i), 
+                birthDate, 
+                isPromotional
+            );
+            detail.setPrice(calculatedPrice);
+            
             detail.setCancelled(false);
+            
+            // Update promotional seats availability if applicable
+            if (isPromotional) {
+                priceService.updatePromotionalSeatsAvailability(flightId, seatCategories.get(i));
+            }
             
             MultipartFile passportImage = passportImages.get(i);
             if (!passportImage.isEmpty()) {
@@ -123,6 +163,7 @@ public class ReservationController {
                 redirectAttributes.addFlashAttribute("error", "Passport image is required for all passengers");
                 redirectAttributes.addFlashAttribute("reservationId", reservationId);
                 redirectAttributes.addFlashAttribute("totalTickets", reservation.getTotalTickets());
+                redirectAttributes.addFlashAttribute("flightId", flightId);
                 return "redirect:/reservations/details";
             }
             
@@ -151,5 +192,28 @@ public class ReservationController {
         List<Reservation> reservations = reservationService.findReservationsByClient(client);
         model.addAttribute("reservations", reservations);
         return "reservation/reservations-list";
+    }
+
+    @GetMapping("/api/price-calculation")
+    @ResponseBody
+    public Map<String, Object> calculatePrice(@RequestParam("flightId") Integer flightId,
+                                             @RequestParam("seatCategory") String seatCategory,
+                                             @RequestParam("birthDate") String birthDate,
+                                             @RequestParam("promotional") boolean promotional) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            LocalDate passengerBirthDate = LocalDate.parse(birthDate);
+            BigDecimal price = priceService.calculateSeatPrice(flightId, seatCategory, passengerBirthDate, promotional);
+            
+            response.put("price", price);
+            response.put("success", true);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+        }
+        
+        return response;
     }
 }

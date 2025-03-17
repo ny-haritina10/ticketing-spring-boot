@@ -16,6 +16,7 @@
         
         <form th:action="@{/reservations/details}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
             <input type="hidden" name="reservationId" th:value="${reservationId}">
+            <input type="hidden" name="flightId" th:value="${flightId}">
             
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -57,11 +58,12 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label th:for="'seatCategory' + ${status.index}" class="form-label">Seat Category</label>
-                                            <select th:id="'seatCategory' + ${status.index}" name="seatCategory" class="form-select" required>
+                                            <select th:id="'seatCategory' + ${status.index}" name="seatCategory" class="form-select" required 
+                                                   th:onchange="'updatePrice(' + ${status.index} + ')'">
                                                 <option value="">-- Select Category --</option>
-                                                <option value="ECONOMY">Economy</option>
-                                                <option value="BUSINESS">Business</option>
-                                                <option value="FIRST_CLASS">First Class</option>
+                                                <option value="Economy">Economy</option>
+                                                <option value="Business">Business</option>
+                                                <option value="First Class">First Class</option>
                                             </select>
                                             <div class="invalid-feedback">
                                                 Please select a seat category.
@@ -72,10 +74,7 @@
                                             <div class="input-group">
                                                 <span class="input-group-text">$</span>
                                                 <input type="number" th:id="'price' + ${status.index}" 
-                                                       name="price" class="form-control" step="0.01" min="0" required>
-                                                <div class="invalid-feedback">
-                                                    Please enter a valid price.
-                                                </div>
+                                                       name="price" class="form-control" step="0.01" min="0" readonly>
                                             </div>
                                         </div>
                                     </div>
@@ -92,9 +91,9 @@
                                         <div class="col-md-6">
                                             <div class="form-check mt-4">
                                                 <input class="form-check-input" type="checkbox" th:id="'promotional' + ${status.index}" 
-                                                       name="promotional" value="true">
+                                                       name="promotional" value="true" th:onchange="'updatePrice(' + ${status.index} + ')'">
                                                 <label class="form-check-label" th:for="'promotional' + ${status.index}">
-                                                    Promotional Ticket
+                                                    Apply Promotional Discount (if available)
                                                 </label>
                                             </div>
                                             <input type="hidden" name="promotional" value="false">
@@ -133,6 +132,31 @@
                 }, false)
             })
         })()
+
+        // Function to update price based on seat category, birth date, and promotional checkbox
+        function updatePrice(index) {
+            const seatCategoryElement = document.getElementById('seatCategory' + index);
+            const birthDateElement = document.getElementById('passengerBirthDate' + index);
+            const promotionalElement = document.getElementById('promotional' + index);
+            const priceElement = document.getElementById('price' + index);
+            
+            const seatCategory = seatCategoryElement.value;
+            const birthDate = birthDateElement.value;
+            const promotional = promotionalElement.checked;
+            const flightId = document.querySelector('input[name="flightId"]').value;
+            
+            if (seatCategory && birthDate) {
+                // Call the server to calculate the price
+                fetch(`/api/price-calculation?flightId=${flightId}&seatCategory=${seatCategory}&birthDate=${birthDate}&promotional=${promotional}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        priceElement.value = data.price;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching price:', error);
+                    });
+            }
+        }
     </script>
 </body>
 </html>
