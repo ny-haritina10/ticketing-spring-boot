@@ -36,7 +36,7 @@ public class PriceCalculationService {
         
         BigDecimal basePrice = flightPriceOptional.get().getBasePrice();
         BigDecimal finalPrice = basePrice;
-        
+
         // 2. Apply promotion discount if requested and available
         if (applyPromotion) {
             Optional<FlightPromotion> promotionOptional = flightPromotionRepository
@@ -59,10 +59,8 @@ public class PriceCalculationService {
         // 3. Apply age-based discount if applicable
         if (passengerBirthDate != null) {
             int age = Period.between(passengerBirthDate, LocalDate.now()).getYears();
-            
-            // Find applicable age category and discount
-            Optional<PercentageDiscount> discountOptional = percentageDiscountRepository
-                    .findByAgeMax(age);
+
+            Optional<PercentageDiscount> discountOptional = percentageDiscountRepository.findByAgeMax(age);
             
             if (discountOptional.isPresent()) {
                 PercentageDiscount discount = discountOptional.get();
@@ -70,7 +68,7 @@ public class PriceCalculationService {
                 BigDecimal ageDiscountAmount = finalPrice.multiply(ageDiscountPercentage)
                         .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
                 
-                finalPrice = finalPrice.subtract(ageDiscountAmount);
+                finalPrice = finalPrice.subtract(ageDiscountAmount);    
             }
         }
         

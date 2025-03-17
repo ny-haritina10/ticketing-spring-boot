@@ -33,6 +33,13 @@
     <div class="container mt-5">
         <h1 class="mb-4"><i class="bi bi-list-ul"></i> My Reservations</h1>
 
+        <div th:if="${success}" class="alert alert-success" role="alert">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <span th:text="${error}"></span>
+        </div>
+
         <div th:if="${reservations.isEmpty()}" class="alert alert-info">
             <i class="bi bi-info-circle"></i> You have no reservations yet.
             <a th:href="@{/reservations/create}" class="alert-link">Create one now!</a>
@@ -111,6 +118,16 @@
                                 </tr>
                             </tbody>
                         </table>
+                        
+                        <!-- Cancel Reservation Button -->
+                        <div class="mt-3 text-end">
+                            <form th:action="@{/reservations/cancel/{id}(id=${reservation.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        th:disabled="${reservation.details.empty or !cancelableStatus[reservation.id]}"
+                                        th:text="${reservation.details.empty ? 'No Details' : (!cancelableStatus[reservation.id] ? 'Not Cancelable' : 'Cancel Reservation')}">
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
