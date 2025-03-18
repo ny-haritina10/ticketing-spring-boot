@@ -196,6 +196,7 @@ public class ReservationController {
         
         Map<Integer, Boolean> cancelableStatus = new HashMap<>();
         Map<Integer, Boolean> allDetailsCancelled = new HashMap<>();
+        
         for (Reservation reservation : reservations) {
             boolean isCancelable = reservationService.isReservationCancelable(reservation, now) 
                                 && !reservation.getDetails().stream().anyMatch(ReservationDetail::isCancelled);

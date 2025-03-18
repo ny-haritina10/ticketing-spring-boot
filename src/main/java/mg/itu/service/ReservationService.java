@@ -50,6 +50,10 @@ public class ReservationService {
     public boolean isReservationCancelable(Reservation reservation, ZonedDateTime now) {
         ZonedDateTime departureTime = reservation.getFlight().getDepartureTime();
         long hoursUntilDeparture = java.time.Duration.between(now, departureTime).toHours();
+
+        System.out.println("departure time: " + departureTime.toString());
+        System.out.println("hoursUntilDeparture: " + hoursUntilDeparture);
+        
         return hoursUntilDeparture >= reservation.getFlight().getCancellationDeadlineHours(); 
     }
 
