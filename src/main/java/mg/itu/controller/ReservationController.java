@@ -72,7 +72,6 @@ public class ReservationController {
             return "redirect:/client-login";
         }
 
-        // set client
         reservation.setClient(client);
         
         if (result.hasErrors()) {
@@ -144,7 +143,6 @@ public class ReservationController {
             boolean isPromotional = promotionals.get(i);
             detail.setPromotional(isPromotional);
             
-            // Calculate price using the PriceCalculationService
             BigDecimal calculatedPrice = priceService.calculateSeatPrice(
                 flightId, 
                 seatCategories.get(i), 
@@ -155,7 +153,6 @@ public class ReservationController {
             detail.setPrice(calculatedPrice);
             detail.setCancelled(false);
             
-            // Update promotional seats availability if applicable
             if (isPromotional) {
                 priceService.updatePromotionalSeatsAvailability(flightId, seatCategories.get(i));
             }
@@ -197,16 +194,21 @@ public class ReservationController {
         List<Reservation> reservations = reservationService.findReservationsByClient(client);
         ZonedDateTime now = ZonedDateTime.now();
         
-        // Create a map to store cancelability status for each reservation
         Map<Integer, Boolean> cancelableStatus = new HashMap<>();
+        Map<Integer, Boolean> allDetailsCancelled = new HashMap<>();
         for (Reservation reservation : reservations) {
             boolean isCancelable = reservationService.isReservationCancelable(reservation, now) 
                                 && !reservation.getDetails().stream().anyMatch(ReservationDetail::isCancelled);
             cancelableStatus.put(reservation.getId(), isCancelable);
+            
+            boolean allCancelled = !reservation.getDetails().isEmpty() 
+                                && reservation.getDetails().stream().allMatch(ReservationDetail::isCancelled);
+            allDetailsCancelled.put(reservation.getId(), allCancelled);
         }
 
         model.addAttribute("reservations", reservations);
         model.addAttribute("cancelableStatus", cancelableStatus);
+        model.addAttribute("allDetailsCancelled", allDetailsCancelled);
         return "reservation/reservations-list";
     }
 
@@ -250,13 +252,12 @@ public class ReservationController {
 
         ZonedDateTime now = ZonedDateTime.now();
         boolean isCancelable = reservationService.isReservationCancelable(reservation, now);
-        
+
         if (!isCancelable) {
             redirectAttributes.addFlashAttribute("error", "Cancellation period has expired for this reservation");
             return "redirect:/reservations/list";
         }
 
-        // Perform cancellation
         reservationService.cancelReservation(reservation, now);
         redirectAttributes.addFlashAttribute("success", "Reservation canceled successfully");
         return "redirect:/reservations/list";

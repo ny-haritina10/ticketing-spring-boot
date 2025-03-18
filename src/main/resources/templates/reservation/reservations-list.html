@@ -105,7 +105,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="detail : ${reservation.details}">
+                                <tr th:each="detail : ${reservation.details}" th:if="${!detail.cancelled}">
                                     <td th:text="${detail.passengerName}"></td>
                                     <td th:text="${detail.seatCategory}"></td>
                                     <td th:text="${detail.passengerBirthDate}"></td>
@@ -113,8 +113,8 @@
                                     <td th:text="${detail.promotional ? 'Yes' : 'No'}"></td>
                                     <td th:text="${detail.cancelled ? 'Cancelled' : 'Active'}"></td>
                                 </tr>
-                                <tr th:if="${reservation.details.isEmpty()}">
-                                    <td colspan="6" class="text-center">No passenger details available yet.</td>
+                                <tr th:if="${reservation.details.isEmpty() or allDetailsCancelled[reservation.id]}">
+                                    <td colspan="6" class="text-center">No active passenger details available.</td>
                                 </tr>
                             </tbody>
                         </table>
