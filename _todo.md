@@ -1,28 +1,31 @@
-- multiple reservations
-    - 3 enfants
-    - 4 adultes
+- calculate price automatically
+    - getBaseSeatPrice(flight, seatCategory)
+    - isSeatPromotional(flight, seatCategory)
+    - calcutalePromotionalReduction(flight, seatCategory)
+        - getBasePrice
+        - getPromotionalReduction
+        - proceed calculate
 
-- NUM UNIQUE reservations
-- details reservations
-    - num unique FK reservations 
+/* 09-04-25 ========= */
 
-- Reservations
-    . id 
-    . id_client (who made the reservation)
-    . id_flight 
-    . reservation_time
-    . nbr_billet_total
-    . nbr_billet_enfant
-    . nbr_billet_adulte
++ Web-Service
+    - EXPORT PDF
+        - Ticketing in Spring Boot
+            => create a web service to export into PDF format the reservations and the reservations details
+            => takes an ID reservations
+            => Export the reservations and reservations details into PDF
+            => follow standard JSON format
+                . status
+                . code
+                . message
+                . errors
+            => Token protections
+                . JWT
 
-- ReservationsDetail
-    . id
-    . id_reservation
-    . id_seat_categorie
-    . name 
-    . dtn
-    . passeport_image
-    . price (calculated: base_price , seat_discount_percentage, age_discount_percentage)
-    . is_promotional
-    . is_cancel
-    . cancellation_time
+        - Ticketing with hand-made framework
+            => create a list of all reservations
+            => add a button `Export into PDF`
+            => call the api in `Ticketing Spring Boot`
+
++ Price verification
+    - Verify price calculation
